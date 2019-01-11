@@ -1,2 +1,2 @@
-# RF95-MQTT-Gateway
+# RFM95-MQTT-Gateway
 LoRa to MQTT Gateway
