@@ -1,45 +1,46 @@
-ifeq ($(wildcard ../Makefile.inc), )
-	$(error Configuration not found. Run ./configure first)
-endif
+# Makefile
+# Sample for RH_RF95 (client and server) on Raspberry Pi
+# Caution: requires bcm2835 library to be already installed
+# http://www.airspayce.com/mikem/bcm2835/
+#        $(CXX) $(CFLAGS) -I$(HEADER_DIR)/.. -I.. -L$(LIB_DIR) -lmosquittopp -lconfig++ mqtt_connector.cpp $@.cpp $(LIBS) -o $@
 
-include ../Makefile.inc
+CC            = g++
+CFLAGS        = -DRASPBERRY_PI -DBCM2835_NO_DELAY_COMPATIBILITY -D__BASEFILE__=\"$*\"
+LIBS          = -lbcm2835
+RADIOHEADBASE = ../RadioHead
+INCLUDE       = -I$(RADIOHEADBASE)
 
-# define all programs
-PROGRAMS = receiver
+all: gateway
 
-BINARY_PREFIX = rf24
-SOURCES = $(PROGRAMS:=.cpp)
+RasPi.o: $(RADIOHEADBASE)/RHutil/RasPi.cpp
+				$(CC) $(CFLAGS) -c $(RADIOHEADBASE)/RHutil/RasPi.cpp $(INCLUDE)
 
-LIBS=-l$(LIB)
+gatweay.o: gateway.cpp
+				$(CC) $(CFLAGS) -c $(INCLUDE) $<
 
-all: $(PROGRAMS)
+mqtt_connector.o: mqtt_connector.cpp
+				$(CC) $(CFLAGS) -c $(INCLUDE) -lmosquittopp -lconfig++ $<
 
-$(PROGRAMS): $(SOURCES)
-	$(CXX) $(CFLAGS) -I$(HEADER_DIR)/.. -I.. -L$(LIB_DIR) -lmosquittopp -lconfig++ mqtt_connector.cpp $@.cpp $(LIBS) -o $@
+RH_RF95.o: $(RADIOHEADBASE)/RH_RF95.cpp
+				$(CC) $(CFLAGS) -c $(INCLUDE) $<
+
+RHDatagram.o: $(RADIOHEADBASE)/RHDatagram.cpp
+				$(CC) $(CFLAGS) -c $(INCLUDE) $<
+
+RHHardwareSPI.o: $(RADIOHEADBASE)/RHHardwareSPI.cpp
+				$(CC) $(CFLAGS) -c $(INCLUDE) $<
+
+RHSPIDriver.o: $(RADIOHEADBASE)/RHSPIDriver.cpp
+				$(CC) $(CFLAGS) -c $(INCLUDE) $<
+
+RHGenericDriver.o: $(RADIOHEADBASE)/RHGenericDriver.cpp
+				$(CC) $(CFLAGS) -c $(INCLUDE) $<
+
+RHGenericSPI.o: $(RADIOHEADBASE)/RHGenericSPI.cpp
+				$(CC) $(CFLAGS) -c $(INCLUDE) $<
+
+gateway: gateway.o RH_RF95.o RasPi.o RHHardwareSPI.o RHGenericDriver.o RHGenericSPI.o RHSPIDriver.o mqtt_connector.o
+				$(CC) $^ $(LIBS) -o gateway
 
 clean:
-	@echo "[Cleaning]"
-	rm -rf $(PROGRAMS)
-
-install: all
-	@echo "[Installing examples to $(EXAMPLES_DIR)]"
-	@mkdir -p $(EXAMPLES_DIR)
-	@for prog in $(PROGRAMS); do \
-		install -m 0755 $${prog} $(EXAMPLES_DIR)/$(BINARY_PREFIX)-$${prog}; \
-	done
-
-upload: all
-	@echo "[Uploading examples to $(REMOTE):$(REMOTE_EXAMPLES_DIR)]"
-ifeq ($(REMOTE),)
-	@echo "[ERROR] Remote machine not configured. Run configure with respective arguments."
-	@exit 1
-endif
-	@ssh -q -t -p $(REMOTE_PORT) $(REMOTE) "mkdir -p $(REMOTE_EXAMPLES_DIR)"
-	@ssh -q -t -p $(REMOTE_PORT) $(REMOTE) "mkdir -p /tmp/RF24_examples"
-	@scp -q -P $(REMOTE_PORT) $(PROGRAMS) $(REMOTE):/tmp/RF24_examples
-	@for prog in $(PROGRAMS); do \
-		ssh -q -t -p $(REMOTE_PORT) $(REMOTE) "sudo install -m 0755 /tmp/RF24_examples/$${prog} $(REMOTE_EXAMPLES_DIR)/$(BINARY_PREFIX)-$${prog}"; \
-	done
-	@ssh -q -t -p $(REMOTE_PORT) $(REMOTE) "rm -rf /tmp/RF24_examples"
-
-.PHONY: install upload
+				rm -rf *.o gateway
