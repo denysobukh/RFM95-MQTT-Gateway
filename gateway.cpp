@@ -5,10 +5,14 @@
 #include "mosquittopp.h"
 #include <libconfig.h++>
 #include <unistd.h>
-#include <sstream> 
+#include <sstream>
 #include <time.h>
 #include <signal.h>
 #include <syslog.h>
+
+#include <bcm2835.h>
+#include <RH_RF69.h>
+#include <RH_RF95.h>
 
 #include "mqtt_connector.h"
 
@@ -16,6 +20,7 @@
 #define RF_IRQ_PIN RPI_V2_GPIO_P1_07 // IRQ on GPIO4 so P1 connector pin #7
 #define RF_RST_PIN RPI_V2_GPIO_P1_11 // Reset on GPIO17 so P1 connector pin #11
 
+RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
 
 struct Message {
 	char id[8];
@@ -46,7 +51,7 @@ void signal_handler(int sig_num){
 }
 
 int main(int argc, char** argv) {
-    
+
 	// Print preamble:
 	std::cout << "RFM95 to MQTT Gateway\r\n==================" << std::endl;
 
@@ -77,12 +82,12 @@ int main(int argc, char** argv) {
 		return(EXIT_FAILURE);
 	}
 
-	float_t freq
+	float freq;
 	int port;
 	std::string client_id, host, topic;
 	try
 	{
-		freq = cfg.lookup("radio_freq").c_float;
+		freq = cfg.lookup("radio_freq");
 		client_id = cfg.lookup("client_id").c_str();
 		host = cfg.lookup("host").c_str();
 		port = cfg.lookup("port");
@@ -102,11 +107,30 @@ int main(int argc, char** argv) {
 
 	// Setup and configure rf radio
 
-    
 	if (!bcm2835_init()) {
 		fprintf( stderr, "%s bcm2835_init() Failed\n\n", __BASEFILE__ );
 		return 1;
 	}
+        printf( "RF95 CS=GPIO%d", RF_CS_PIN);
+
+	#ifdef RF_IRQ_PIN
+  		printf( ", IRQ=GPIO%d\n", RF_IRQ_PIN );
+  		// IRQ Pin input/pull down
+  		pinMode(RF_IRQ_PIN, INPUT);
+  		bcm2835_gpio_set_pud(RF_IRQ_PIN, BCM2835_GPIO_PUD_DOWN);
+  		// Now we can enable Rising edge detection
+  		bcm2835_gpio_ren(RF_IRQ_PIN);
+	#endif
+  
+	#ifdef RF_RST_PIN
+		printf( ", RST=GPIO%d\n", RF_RST_PIN );
+		// Pulse a reset on module
+		pinMode(RF_RST_PIN, OUTPUT);
+		digitalWrite(RF_RST_PIN, LOW );
+		bcm2835_delay(150);
+		digitalWrite(RF_RST_PIN, HIGH );
+		bcm2835_delay(100);
+	#endif
 
 	std::cout << "Radio initialized." << std::endl;
 
@@ -156,15 +180,24 @@ int main(int argc, char** argv) {
     //rf95.setCADTimeout(10000);
 
     // Adjust Frequency
-    rf95.setFrequency(RF_FREQUENCY);
+    rf95.setFrequency(freq);
     
     // If we need to send something
-    rf95.setThisAddress(RF_NODE_ID);
-    rf95.setHeaderFrom(RF_NODE_ID);
+    
+    //rf95.setThisAddress(RF_NODE_ID);
+    //rf95.setHeaderFrom(RF_NODE_ID);
     
     // Be sure to grab all node packet 
     // we're sniffing to display, it's a demo
     rf95.setPromiscuous(true);
+
+//        Bw125Cr45Sf128 = 0,        ///< Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Default medium range
+//        Bw500Cr45Sf128,            ///< Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Fast+short range
+//        Bw31_25Cr48Sf512,          ///< Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on. Slow+long range
+//        Bw125Cr48Sf4096,           ///< Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on. Slow+long range
+
+    rf95.setModemConfig(RH_RF95::Bw500Cr45Sf128);
+    rf95.setPreambleLength(8);
 
     // We're ready to listen for incoming message
     rf95.setModeRx();
@@ -200,7 +233,7 @@ int main(int argc, char** argv) {
           if (rf95.recv(buf, &len)) {
 			  
 			if (sizeof(msg) == len) {
-				memcpy(msg, buf, len)
+				memcpy(&msg, buf, len);
 				printf("Got payload size=%i:\t t=%i, h=%i, p=%i, v=%i \r\n", len, msg.temperature, msg.humidity, msg.pressure, msg.voltage);
 				try
 			{
@@ -233,12 +266,12 @@ int main(int argc, char** argv) {
 			}			  
 			  
 			  
-            printf("From: [#%d] => Temperature: ", to);
-            //printf("Packet[%02d] #%d => #%d %ddB: ", len, from, to, rssi);
-            //printbuffer(buf, len);
+            //printf("From: [#%d]", to);
+            printf("Packet #%d s=%02d #%d => #%d %ddB:\n", id, len, from, to, rssi);
+            printbuffer(buf, len);
             
           } else {
-            Serial.print("receive failed");
+            printf("receive failed");
           }
           printf("\n");
         }

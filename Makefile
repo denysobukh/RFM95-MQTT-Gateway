@@ -15,7 +15,7 @@ all: gateway
 RasPi.o: $(RADIOHEADBASE)/RHutil/RasPi.cpp
 				$(CC) $(CFLAGS) -c $(RADIOHEADBASE)/RHutil/RasPi.cpp $(INCLUDE)
 
-gatweay.o: gateway.cpp
+gateway.o: gateway.cpp
 				$(CC) $(CFLAGS) -c $(INCLUDE) $<
 
 mqtt_connector.o: mqtt_connector.cpp
@@ -40,7 +40,7 @@ RHGenericSPI.o: $(RADIOHEADBASE)/RHGenericSPI.cpp
 				$(CC) $(CFLAGS) -c $(INCLUDE) $<
 
 gateway: gateway.o RH_RF95.o RasPi.o RHHardwareSPI.o RHGenericDriver.o RHGenericSPI.o RHSPIDriver.o mqtt_connector.o
-				$(CC) $^ $(LIBS) -o gateway
+				$(CC) $^ $(LIBS) -lmosquittopp -lconfig++ -o gateway
 
 clean:
 				rm -rf *.o gateway
