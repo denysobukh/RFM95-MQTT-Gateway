@@ -4,7 +4,7 @@
 
 mqtt_connector::mqtt_connector(const char *id, const char *host, int port) : mosquittopp(id)
 {
-	int keepalive = 120;
+	int keepalive = 300;
 	int rc = connect(host, port, keepalive);
         std::cout << "Connect: " << mosqpp::strerror(rc) << std::endl;
 };
