@@ -267,7 +267,7 @@ int main(int argc, char** argv) {
 			  
 			  
             //printf("From: [#%d]", to);
-            printf("Packet #%d s=%02d #%d => #%d %ddB:\n", id, len, from, to, rssi);
+            printf("Packet id: %d, len = %02d, from: %d, to: #%d, rssi: %ddB:\n", id, len, from, to, rssi);
             printbuffer(buf, len);
             
           } else {
