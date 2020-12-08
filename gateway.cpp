@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
         printf( "RF95 CS=GPIO%d", RF_CS_PIN);
 
 	#ifdef RF_IRQ_PIN
-  		printf( ", IRQ=GPIO%d\n", RF_IRQ_PIN );
+  		printf( ", IRQ=GPIO%d", RF_IRQ_PIN );
   		// IRQ Pin input/pull down
   		pinMode(RF_IRQ_PIN, INPUT);
   		bcm2835_gpio_set_pud(RF_IRQ_PIN, BCM2835_GPIO_PUD_DOWN);
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
 	#endif
   
 	#ifdef RF_RST_PIN
-		printf( ", RST=GPIO%d\n", RF_RST_PIN );
+		printf( ", RST=GPIO%d", RF_RST_PIN );
 		// Pulse a reset on module
 		pinMode(RF_RST_PIN, OUTPUT);
 		digitalWrite(RF_RST_PIN, LOW );
@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
 		bcm2835_delay(100);
 	#endif
 
-	std::cout << "Radio initialized." << std::endl;
+	std::cout << "\nRadio initialized." << std::endl;
 
 	class mqtt_connector *mqtt_;
 	try
