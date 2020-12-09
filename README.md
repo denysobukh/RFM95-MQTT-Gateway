@@ -1,9 +1,12 @@
 # LoRa Gateway 
+
 LoRa to MQTT Gateway based on Raspberry Pi
 
 ## Schematic
 
 Radio module: RFM95W Low Power Long Range Transceiver Module
+
+wiring:
 
 RFM95W | Rapberry Pi 1 Model B 
 ------------ | -------------
