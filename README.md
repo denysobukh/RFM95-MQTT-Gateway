@@ -1,18 +1,19 @@
-# LoRa gateway 
+# LoRa Gateway 
 LoRa to MQTT Gateway based on Raspberry Pi
 
 ## Schematic
 
-Tested with RFM95W Low Power Long Range Transceiver Module and Raspberry Pi model B
+Radio module: RFM95W Low Power Long Range Transceiver Module
 
-RFM95W | Rapberry Pi 1 Model B
+RFM95W | Rapberry Pi 1 Model B 
 ------------ | -------------
-3.3 | 1
-GND | 6
-DIO0 | 7
-RESET | 11
-NSS | 22
-MOSI | 19
-MISO | 21
-SCK | 23
+3.3 | 1 ( 3.3 VDC Power )
+GND | 6 ( 0V Ground )
+DIO0 | 7 ( GPIO 7 )
+RESET | 11 ( GPIO 0 )
+NSS | 22 ( GPIO 6 )
+MOSI | 19 ( MOSI )
+MISO | 21 ( MISO )
+SCK | 23 ( SCLK )
        
+Transmitter node https://github.com/denysobukh/environment-sensor-node
