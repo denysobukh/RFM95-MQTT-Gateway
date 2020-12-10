@@ -203,7 +203,7 @@ int main(int argc, char** argv) {
 	// We're ready to listen for incoming message
 	rf95.setModeRx();
 
-	syslog (LOG_INFO, "Radio OK NodeID = %d Listening @ %3.2fMHz\n", RF_NODE_ID, RF_FREQUENCY);
+	syslog (LOG_INFO, "Radio OK NodeID = %s Listening @ %3.2fMHz\n", client_id, freq);
 
 	//Begin the main body of code
 	while (!force_exit)
@@ -243,7 +243,7 @@ int main(int argc, char** argv) {
 							ostr << "<humidity>" << msg.humidity / 10.0 << "</humidity>";
 							ostr << "<pressure>" << msg.pressure << "</pressure>";
 							ostr << "<voltage>" << msg.voltage / 100.0 << "</voltage>";
-							
+
 							ostr << "</message>";
 							std::string m = ostr.str();
 
@@ -254,7 +254,7 @@ int main(int argc, char** argv) {
 									printf("Message sending error (retry #%d) : %s\n", i, mosqpp::strerror(r));
 									mqtt_->reconnect();
 								}
-							} while (r != MOSQ_ERR_SUCCESS && i++ < 3)
+							} while (r != MOSQ_ERR_SUCCESS && i++ < 3);
 						}
 						catch (int e) {
 							std::cout << "mqtt_send exception " << e << std::endl;
