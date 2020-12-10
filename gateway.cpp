@@ -224,12 +224,12 @@ int main(int argc, char** argv) {
 			if (rf95.available()) {
 				// Should be a message for us now
 				uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
-				uint8_t len  = sizeof(buf);
-				uint8_t from = rf95.headerFrom();
-				uint8_t to   = rf95.headerTo();
-				uint8_t id   = rf95.headerId();
-				uint8_t flags= rf95.headerFlags();;
-				int8_t rssi  = rf95.lastRssi();
+				uint8_t len  	= sizeof(buf);
+				uint8_t from 	= rf95.headerFrom();
+				uint8_t to   	= rf95.headerTo();
+				uint8_t id   	= rf95.headerId();
+				uint8_t flags	= rf95.headerFlags();;
+				int8_t  rssi 	= rf95.lastRssi();
 
 				if (rf95.recv(buf, &len)) {
 
@@ -239,7 +239,11 @@ int main(int argc, char** argv) {
 						try
 						{
 							std::ostringstream ostr;
-							ostr << "<message time=\"" << currentDateTime() << "\" from=\"" << from << "\" to=\"" << to << "\" rssi=\"" << rssi << "\" id=\"" << id << "\" >";
+							ostr << "<message time=\"" << currentDateTime() << "\"";
+							ostr << " from=\"" << std::to_string(from) << "\"";
+							ostr << " to=\"" << std::to_string(to) << "\"";
+							ostr << " rssi=\"" << std::to_string(rssi) << "\"";
+							ostr << " id=\"" << std::to_string(id) << "\">";
 							ostr << "<temperature>" << msg.temperature / 10.0 << "</temperature>";
 							ostr << "<humidity>" << msg.humidity / 10.0 << "</humidity>";
 							ostr << "<pressure>" << msg.pressure << "</pressure>";
