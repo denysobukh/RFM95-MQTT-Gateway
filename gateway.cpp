@@ -23,6 +23,7 @@
 RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
 
 struct Message {
+	char[8] signature;
 	int32_t pressure;
 	int32_t humidity;
 	int32_t temperature;
