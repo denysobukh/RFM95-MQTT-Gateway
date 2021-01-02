@@ -31,9 +31,10 @@ void mqtt_connector::on_subscribe(int mid, int qos_count, const int *granted_qos
 	std::cout << "Subscription succeeded.\n" << std::endl;
 }
 
-int mqtt_connector::send(const char* topic, const char* payload, int size)
+int mqtt_connector::send(const char *topic, int size, const void *payload, int qos, bool retain)
 {
-	return publish(NULL, topic, size, payload);
+	std::cout << "sent message: " << size << " qos: " << qos << " retain: " << retain << "\r\n";
+	return publish(NULL, topic, size, payload, qos, retain);
 }
 
 void mqtt_connector::on_disconnect(int rc)

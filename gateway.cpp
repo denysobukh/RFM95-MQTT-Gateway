@@ -23,7 +23,6 @@
 RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
 
 struct Message {
-	char signature[8];
 	int32_t pressure;
 	int32_t humidity;
 	int32_t temperature;
@@ -254,7 +253,7 @@ int main(int argc, char** argv) {
 
 							int i = 1, r;
 							do {
-								r = mqtt_->send(topic.c_str(), m.c_str(), m.size());
+								r = mqtt_->send(topic.c_str(), m.size(), m.c_str(), 0, true);
 							  if (r != MOSQ_ERR_SUCCESS) {
 									printf("Message sending error (retry #%d) : %s\n", i, mosqpp::strerror(r));
 									mqtt_->reconnect();
