@@ -232,9 +232,12 @@ int main(int argc, char** argv) {
 
 				if (rf95.recv(buf, &len)) {
 
+					printf("Packet #%d %02d bytes, Addr %d->%d, RSSI: %ddB, Flags[0x%08X]: ", id, len, from, to, rssi, flags);
+					printbuffer(buf, len);
+
 					if (sizeof(msg) == len) {
 						memcpy(&msg, buf, len);
-						printf("Got payload size=%i:\t t=%i, h=%i, p=%i, v=%i \r\n", len, msg.temperature, msg.humidity, msg.pressure, msg.voltage);
+						printf("\r\nDecoded: T = %i, H = %i, p = %i, U = %i \r\n", msg.temperature, msg.humidity, msg.pressure, msg.voltage);
 						try
 						{
 							std::ostringstream ostr;
@@ -271,9 +274,6 @@ int main(int argc, char** argv) {
 					}
 
 
-					//printf("From: [#%d]", to);
-					printf("Packet id: %d, len = %02d, from: %d, to: #%d, rssi: %ddB:\n", id, len, from, to, rssi);
-					printbuffer(buf, len);
 
 				} else {
 					printf("receive failed");
