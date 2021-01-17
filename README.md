@@ -20,3 +20,15 @@ MISO | 21 ( MISO )
 SCK | 23 ( SCLK )
        
 Transmitter node https://github.com/denysobukh/environment-sensor-node
+
+
+## Startup script 
+
+please add to crontab:
+
+```
+@reboot /usr/bin/screen -dm bash -c  'sleep 1; cd /home/pi/RFM95-MQTT-Gateway; sudo ./gateway; exec sh'
+```
+
+
+

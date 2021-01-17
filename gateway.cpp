@@ -232,7 +232,7 @@ int main(int argc, char** argv) {
 
 				if (rf95.recv(buf, &len)) {
 
-					printf("Packet #%d %02d bytes, Addr %d->%d, RSSI: %ddB, Flags[0x%08X]: ", id, len, from, to, rssi, flags);
+					printf("Packet #%d %02d bytes, Addr %d->%d, RSSI: %ddB, Flags[0x%02X]: ", id, len, from, to, rssi, flags);
 					printbuffer(buf, len);
 
 					if (sizeof(msg) == len) {
